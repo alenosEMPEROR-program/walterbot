@@ -1,7 +1,4 @@
 {
-  "dependencies": {
-    "discord.js": "^12.5.3"
-  },
   "name": "bot",
   "version": "1.0.0",
   "main": "main.js",
@@ -13,5 +10,8 @@
   },
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
