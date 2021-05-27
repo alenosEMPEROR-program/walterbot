@@ -1,65 +1,50 @@
-//====================================================================================CONSTANTS REQUIRED ON READY=============================================================================================
-const { Client, Collection } = require('discord.js');
-const { PREFIX, TOKEN } = require('./config');
-const bot = new Client({ disableMentions: 'everyone' });
-const fs = require("fs");
-const db = require('quick.db');
-//============================================================================================================================================================================================================
+const fs = require('fs');
+const Discord = require('discord.js');
+const config = require('./config.json');
+const client = new Discord.Client();
+client.commands = new Discord.Collection();
 
+const commandFiles = fs
+  .readdirSync('./commands')
+  .filter((file) => file.endsWith('.js'));
 
-//====================================================================================COLLECTIONS REQUIRED ON READY===========================================================================================
-bot.commands = new Collection();
-bot.aliases = new Collection();
+for (const file of commandFiles) {
+  const command = require(`./commands/${file}`);
+  client.commands.set(command.name, command);
+}
 
-//============================================================================================================================================================================================================
-
-
-
-//============================================================================================INITIALIZING====================================================================================================
-["aliases", "commands"].forEach(x => bot[x] = new Collection());
-["console", "command", "event"].forEach(x => require(`./handler/${x}`)(bot));
-
-bot.categories = fs.readdirSync("./commands/");
-
-["command"].forEach(handler => {
-    require(`./handler/${handler}`)(bot);
+client.once('ready', () => {
+  console.log('Ready!');
 });
 
-//============================================================================================================================================================================================================
+client.on('message', async (message) => {
+  if (message.author.bot) return;
 
+  let args = message.content.trim().split(/ +/);
+  const commandName = args.shift().toLowerCase().slice(0, -1); //remove !
 
-//=========================================================================================MENTION SETTINGS===========================================================================================
+  if (!client.commands.has(commandName)) return;
 
-bot.on('message', async message => {
+  const command = client.commands.get(commandName);
 
+  try {
+    if (commandName == 'hindaw') args = message.content.slice(8);
+    await command.execute(message, args);
+  } catch (error) {
+    console.error(error);
 
-    let prefix;
-        try {
-            let fetched = await db.fetch(`prefix_${message.guild.id}`);
-            if (fetched == null) {
-                prefix = PREFIX
-            } else {
-                prefix = fetched
-            }
-        
-            } catch {
-            prefix = PREFIX
-    };
-    try {
-        if (message.mentions.has(bot.user.id) && !message.content.includes("@everyone") && !message.content.includes("@here")) {
-          message.channel.send(`\nMy prefix for \`${message.guild.name}\` is \`${prefix}\` Type \`${prefix}help\` for help`);
-          }
-          
-    } catch {
-        return;
+    const embedMessage = {
+      color: 0x0099ff,
+      title: 'Noooooo! Oh well',
+      footer: {
+        text: 'nagka-error hehe. try nala utro hehehe',
+      },
     };
 
+    return message.reply({ embed: embedMessage });
+  }
 });
 
-
-//============================================================================================================================================================================================================
-
-
-bot.login(TOKEN);
+client.login(token);
 
 
