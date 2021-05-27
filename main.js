@@ -1,33 +1,65 @@
-const discord = require("discord.js");
-const config = require("./config.json");
+//====================================================================================CONSTANTS REQUIRED ON READY=============================================================================================
+const { Client, Collection } = require('discord.js');
+const { PREFIX, TOKEN } = require('./config');
+const bot = new Client({ disableMentions: 'everyone' });
+const fs = require("fs");
+const db = require('quick.db');
+//============================================================================================================================================================================================================
 
-const client = new Client({
-    disableEveryone: true
-});
 
-client.commands = new Collection();
-client.aliases = new Collection();
+//====================================================================================COLLECTIONS REQUIRED ON READY===========================================================================================
+bot.commands = new Collection();
+bot.aliases = new Collection();
 
-client.categories = fs.readdirSync("./commands/");
+//============================================================================================================================================================================================================
 
-config({
-    path: __dirname + "/.env"
-});
+
+
+//============================================================================================INITIALIZING====================================================================================================
+["aliases", "commands"].forEach(x => bot[x] = new Collection());
+["console", "command", "event"].forEach(x => require(`./handler/${x}`)(bot));
+
+bot.categories = fs.readdirSync("./commands/");
 
 ["command"].forEach(handler => {
-    require(`./handlers/${handler}`)(client);
+    require(`./handler/${handler}`)(bot);
 });
 
-client.on("ready", () => {
-    console.log(`Hi, ${client.user.username} is now online!`);
+//============================================================================================================================================================================================================
 
-    client.user.setPresence({
-        status: "online",
-        game: {
-            name: "dogebot to the moon",
-            type: "STREAMING"
-        }
-    }); 
+
+//=========================================================================================MENTION SETTINGS===========================================================================================
+
+bot.on('message', async message => {
+
+
+    let prefix;
+        try {
+            let fetched = await db.fetch(`prefix_${message.guild.id}`);
+            if (fetched == null) {
+                prefix = PREFIX
+            } else {
+                prefix = fetched
+            }
+        
+            } catch {
+            prefix = PREFIX
+    };
+    try {
+        if (message.mentions.has(bot.user.id) && !message.content.includes("@everyone") && !message.content.includes("@here")) {
+          message.channel.send(`\nMy prefix for \`${message.guild.name}\` is \`${prefix}\` Type \`${prefix}help\` for help`);
+          }
+          
+    } catch {
+        return;
+    };
+
 });
+
+
+//============================================================================================================================================================================================================
+
+
+bot.login(TOKEN);
 
 
