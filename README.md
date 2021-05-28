@@ -1,3 +1,3 @@
-# dogebot
-doge to the moon!!!
+# walterbot
+waltergang!!
 coming soon!
