@@ -3,7 +3,7 @@ const { MessageEmbed } = require('discord.js');
 module.exports = {
     name: "serverinfo",
     category: "extra",
-     async execute(client, message, args) =>
+     async execute(message, args) {
         let region;
         switch (message.guild.region) {
             case "europe":

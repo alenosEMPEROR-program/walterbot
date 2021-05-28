@@ -3,7 +3,7 @@ const ms = require('ms');
 
 module.exports = {
     name: 'slowmode',
-    run: async (client, message, args) => {
+    async execute (message, args) {
 
         if (!message.member.hasPermission('MANAGE_CHANNELS')) return message.channel.send('You do not have **MANAGE_CHANNELS** permission!').then(m => m.delete({ timeout: 5000 }));
 
