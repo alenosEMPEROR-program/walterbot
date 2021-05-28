@@ -4,6 +4,9 @@ const config = require('./config.json');
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
 
+//dotenv
+require('dotenv').config();
+
 //get commands
 const commandFiles = fs
   .readdirSync('./commands')
@@ -44,4 +47,4 @@ client.on('message', async (message) => {
   }
 })
 
-client.login(config.TOKEN);
+client.login(process.env.TOKEN);
